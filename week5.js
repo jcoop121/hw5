@@ -19,11 +19,10 @@
 window.addEventListener('DOMContentLoaded', async function() {
     // Get a reference to the "get weather" button
     let getWeatherButton = document.querySelector(`.get-weather`)
-  
+    
     // When the "get weather" button is clicked:
     getWeatherButton.addEventListener(`click`, async function(event) {
-  
-  
+        
       // - Ignore the default behavior of the button
     event.preventDefault()
   
@@ -31,14 +30,20 @@ window.addEventListener('DOMContentLoaded', async function() {
     let inputLocationElement = document.querySelector(`#location`)
   
       // - Get the user-entered location from the element's value
-  let inputLocation = inputLocationElement.value
-  console.log(inputLocation)
+    let inputLocation = inputLocationElement.value
+    //console.log(inputLocation)
+      
+      // - Get a reference to the element containing the user-entered days 
+    let inputDaysElement = document.querySelector(`#days`)
   
+      // - Get the user-entered days from the element's value
+    let inputDays = inputDaysElement.value
+
       // - Check to see if the user entered anything; if so:
-  if  (inputLocation.length > 0) {
+    if  (inputLocation.length > 0) {
   
         // - Construct a URL to call the WeatherAPI.com API
-        let url = `https://api.weatherapi.com/v1/forecast.json?key=b968a00a6b1e4d4f99c12038213004&q=${inputLocation}&days=3`
+        let url = `https://api.weatherapi.com/v1/forecast.json?key=b968a00a6b1e4d4f99c12038213004&q=${inputLocation}&days=${inputDays}`
   
         // - Fetch the url, wait for a response, store the response in memory
         let response = await fetch (url)
@@ -48,67 +53,72 @@ window.addEventListener('DOMContentLoaded', async function() {
   
         // - Write the json-formatted data to the JavaScript console
   
-        console.log(json)
+        // console.log(json)
         // - Store the interpreted location, current weather conditions, the forecast as three separate variables
-      let region = json.location.region
-      console.log(region)
-  
-      let city = json.location.name
-      console.log(region)
-  
-      let location = `${city}, ${region}`
-      console.log(location)
-  
-      let temp = json.current.temp_f
-      let condition = json.current.condition.text
-      let currentWeather = `${temp} and ${condition}`
-      console.log(currentWeather)
-  
-      let currentElement = document.querySelector(`.current`)
-      currentElement.innerHTML = `
-      <div class="current mt-8">
-      <!-- An example only! You should delete the contents of this div when done. -->
-      <div class="text-center space-y-2">
+        let region = json.location.region
+        // console.log(region)
+    
+        let city = json.location.name
+        // console.log(city)
+    
+        let location = `${city}, ${region}`
+        // console.log(location)
+    
+        let temp = json.current.temp_f
+        let condition = json.current.condition.text
+        // let currentWeather = `${temp} and ${condition}`
+       
+        // console.log(currentWeather)
+    
+        // Store a reference to the "current" element
+        let currentElement = document.querySelector(`.current`)
+        // console.log(json.forecast.forecastday)
+
+        // Fill the current element with the location and current weather conditions and add for loop
+        
+        currentElement.innerHTML = `
+        <div class="text-center space-y-2">
         <div class="font-bold text-3xl">Current Weather for ${location}</div>
         <div class="font-bold">
           <img src="https://cdn.weatherapi.com/weather/64x64/day/116.png" class="inline-block">
           <span class="temperature">${temp}</span>° 
           and
           <span class="conditions">${condition}</span>
+
         </div>
-      </div>
+      </div>`
+      
+      let forecastElement = document.querySelector(`.forecast`)
+      forecastElement.innerHTML = `
       <div class="text-center space-y-8">
-      <div class="font-bold text-3xl">3 Day Forecast</div>
+      <div class="font-bold text-3xl">${inputDays} Day Forecast</div>
+      </div>`
+                  
+        for (i = 0; i < json.forecast.forecastday.length; i++) {
+            let date = json.forecast.forecastday[i].date
+            let tempMax = json.forecast.forecastday[i].day.maxtemp_f
+            let tempMin = json.forecast.forecastday[i].day.mintemp_f
+            let forecastCondition = json.forecast.forecastday[i].day.condition.text
+            let forecastImage = json.forecast.forecastday[i].day.condition.icon
+                   
+        forecastElement.insertAdjacentHTML(`beforeend`, `
+        
+      <div class="text-center space-y-8">
+      
       <div>
-        <img src="https://cdn.weatherapi.com/weather/64x64/day/116.png" class="mx-auto">
-        <h1 class="text-2xl text-bold text-gray-500">2021-04-27</h1>
-        <h2 class="text-xl">High 66° – Low 44°</h2>
-        <p class="text-gray-500">Partly Cloudy</h1>
+        <img src="https:${forecastImage}" class="mx-auto">
+        <h1 class="text-2xl text-bold text-gray-500">${date}</h1>
+        <h2 class="text-xl">${tempMax}° – ${tempMin}°</h2>
+        <p class="text-gray-500">${forecastCondition}</h1>
       </div>
-      <div>
-        <img src="https://cdn.weatherapi.com/weather/64x64/day/116.png" class="mx-auto">
-        <h1 class="text-2xl text-bold text-gray-500">2021-04-28</h1>
-        <h2 class="text-xl">High 66° – Low 44°</h2>
-        <p class="text-gray-500">Partly Cloudy</h1>
-      </div>
-  
-      <div>
-        <img src="https://cdn.weatherapi.com/weather/64x64/day/116.png" class="mx-auto">
-        <h1 class="text-2xl text-bold text-gray-500">2021-04-29</h1>
-        <h2 class="text-xl">High 66° – Low 44°</h2>
-        <p class="text-gray-500">Partly Cloudy</h1>
-      </div>
+
     </div>
   </div>
-  </div> -->
-      `
-  
-      for (i = 0; i < 3; i++) {
-        let date = json.forecast.forecastday[i].date
-        console.log(date)
-      }
-  
-        // - Continue the recipe yourself!
-      }
+  </div>
+      `)
+        }
+       }
+     
+      
       })
   })
